@@ -80,6 +80,12 @@ check_lock_file() {
                     FOUND_COMPROMISED=1
                 fi
             fi
+            elif [[ "$file" == *"pnpm-lock.yaml" ]]; then
+                # Check pnpm-lock.yaml format
+                if grep -q "^$package@" "$file" && grep -A 5 "^$package@" "$file" | grep -q "version: $compromised_version" 2>/dev/null; then
+                    echo -e "${RED}🚨 CRITICAL: Found compromised package $package@$compromised_version in $file${NC}"
+                    FOUND_COMPROMISED=1
+                fi
         fi
     done <<< "$COMPROMISED_PACKAGES"
 }
